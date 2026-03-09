@@ -246,12 +246,20 @@ pub trait Socket: Sized + Send {
 
                 match result {
                     Ok((endpoint, peer_id)) => {
-                        if let Some(monitor) = cloned_backend.monitor().lock().as_mut() {
+                        println!("Peer connected: {:?} with id {:?}", endpoint, peer_id);
+                        let mut monitor_handle = {
+                            cloned_backend.monitor().lock()
+                        };
+                        if let Some(monitor) = monitor_handle.as_mut() {
                             let _ = monitor.try_send(SocketEvent::Accepted(endpoint, peer_id));
                         }
                     }
                     Err(e) => {
-                        if let Some(monitor) = cloned_backend.monitor().lock().as_mut() {
+                        println!("Peer connection failed: {:?}", e);
+                        let mut monitor_handle = {
+                            cloned_backend.monitor().lock()
+                        };
+                        if let Some(monitor) = monitor_handle.as_mut() {
                             let _ = monitor.try_send(SocketEvent::AcceptFailed(e));
                         }
                     }

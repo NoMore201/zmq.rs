@@ -48,12 +48,16 @@ where
                                 .map(|_| (raw_socket, remote_addr))
                         })
                         .map(|(raw_socket, remote_addr)| {
+                            println!("Accepted connection from {:?}", remote_addr);
                             (
                                 make_framed(raw_socket),
                                 Endpoint::from_tcp_addr(remote_addr),
                             )
                         })
-                        .map_err(|err| err.into());
+                        .map_err(|err| {
+                            println!("Error accepting connection: {:?}", err);
+                            err.into()
+                        });
                     async_rt::task::spawn(cback(maybe_accepted));
                 }
                 _ = stop_callback => {
